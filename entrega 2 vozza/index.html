@@ -9,9 +9,96 @@
     <link rel="stylesheet" href="../entrega 2 vozza/style.css" />
   </head>
   <body>
-    <h1>Simulador de Compras</h1>
-    <p>está es una prueba del Simulador de Compras.</p>
+    <header class="app-header">
+      <h1>Simulador de Compras</h1>
+      <p class="tagline">DOM + eventos + LocalStorage</p>
+    </header>
 
-    <script src="../entrega 2 vozza/entrega-2.js"></script>
+    <main class="layout">
+      <section class="panel">
+        <h2>Catálogo</h2>
+
+        <div class="toolbar">
+          <label for="search">Buscar</label>
+          <input
+            id="search"
+            type="search"
+            placeholder="mate, café, infusiones..."
+          />
+        </div>
+
+        <div id="product-list" class="product-grid" aria-live="polite"></div>
+
+        <h3>Productos</h3>
+        <form id="product-form" class="card form">
+          <div class="form-row">
+            <label for="name">Nombre</label>
+            <input
+              id="name"
+              type="text"
+              placeholder="mate, cafe, infusiones..."
+            />
+          </div>
+          <div class="form-row">
+            <label for="price">Precio (ARS$)</label>
+            <input
+              id="price"
+              type="number"
+              step="0.01"
+              min="0.01"
+              required
+              placeholder="200"
+            />
+          </div>
+          <div class="form-row">
+            <label for="stock">Stock</label>
+            <input
+              id="stock"
+              name="stock"
+              type="number"
+              min="0"
+              step="1"
+              required
+              placeholder="10"
+            />
+          </div>
+          <button type="submit" class="btn primary">Agregar al Catálogo</button>
+          <p id="product-form-error" class="error" aria-live="assertive"></p>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>Carrito</h2>
+        <div class="card">
+          <div class="cart-header">
+            <button id="clear-cart" class="btn-danger">Vaciar Carrito</button>
+          </div>
+          <div class="table-wrap">
+            <table class="cart-table">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Precio</th>
+                  <th>Cantidad</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody id="cart-body"></tbody>
+            </table>
+          </div>
+          <div class="cart-footer">
+            <strong>Total: </strong>
+            <span id="cart-total">ARS 0</span>
+          </div>
+        </div>
+        <p id="messages" class="messages" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <small>© 2025 by Agustín Vozza</small>
+    </footer>
+
+    <script src="../entrega 2 vozza/entrega-2.js" defer></script>
   </body>
 </html>
