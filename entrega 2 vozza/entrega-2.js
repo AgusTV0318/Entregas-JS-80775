@@ -14,8 +14,8 @@ class Product {
 }
 
 class CartItem {
-  constructor(ProductId, name, price, gty = 1) {
-    this.ProductId = ProductId;
+  constructor(productId, name, price, qty = 1) {
+    this.productId = productId;
     this.name = name;
     this.price = Number(price);
     this.qty = Number.isInteger(qty) ? qty : parseInt(this.qty, 10) || 1;
@@ -47,12 +47,12 @@ function loadState() {
       catalog = cat.map((p) => new Product(p.id, p.name, p.price, p.stock));
     }
     if (Array.isArray(crt)) {
-      cart = crt.map((c) => new CartItem(c.ProductId, c.name, c.price, c.qty));
+      cart = crt.map((c) => new CartItem(c.productId, c.name, c.price, c.qty));
     }
   } catch {}
 }
 
-function seedCatalofIfEmpty() {
+function seedCatalogIfEmpty() {
   if (catalog.length > 0) return;
   catalog = [
     new Product(uid(), "Mate Clásico", 5200, 5),
@@ -158,20 +158,20 @@ function setMessage(text, tone = "info") {
 function validateProductInput({ name, price, stock }) {
   const errors = [];
   if (!name || name.trim().length < 2)
-    errores.push("nombre debe tener al menos 2 caracteres");
+    errors.push("Nombre debe tener al menos 2 caracteres.");
   const priceNum = Number(price);
   if (!Number.isFinite(priceNum) || priceNum <= 0)
     errors.push("Precio debe ser un número mayor a 0.");
   const stockNum = Number(stock);
   if (!Number.isInteger(stockNum) || stockNum < 0)
-    errors.push("Stock debe ser un número mayor a 0.");
+    errors.push("Stock debe ser un número mayor o igual a 0.");
   return { ok: errors.length === 0, errors, priceNum, stockNum };
 }
 
 function addToCart(productId) {
   const p = findProduct(productId);
-  if (!p) return setMenssage("Producto no encontrado.", "error");
-  if (p.stock <= 0) return setMenssage("Sin stock disponible.", "error");
+  if (!p) return setMessage("Producto no encontrado.", "error");
+  if (p.stock <= 0) return setMessage("Sin stock disponible.", "error");
 
   const existing = findCartItem(productId);
   if (existing) {
@@ -184,11 +184,26 @@ function addToCart(productId) {
   saveCart();
   saveCatalog();
   renderCart();
-  renderCartLog(byId("search").value);
-  setMenssage("producto agregado al carrito.");
+  renderCatalog(byId("search").value);
+  setMessage("Producto agregado al carrito.");
 }
 
 function incrementCart(productId) {
+  const p = findProduct(productId);
+  const item = findCartItem(productId);
+  if (!p || !item) return;
+  item.qty -= 1;
+  p.stock += 1;
+  if (item.qty <= 0) {
+    cart = cart.filter((i) => i.productId !== productId);
+  }
+  saveCart();
+  saveCatalog();
+  renderCart();
+  renderCatalog(byId("search").value);
+}
+
+function decrementCart(productId) {
   const p = findProduct(productId);
   const item = findCartItem(productId);
   if (!p || !item) return;
@@ -226,11 +241,11 @@ function clearCart() {
   saveCatalog();
   renderCart();
   renderCatalog(byId("search").value);
-  setMenssage("Carrito Vaciado.");
+  setMessage("Carrito Vaciado.");
 }
 
 function escapeHTML(str) {
-  return string(str)
+  return String(str)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -261,7 +276,7 @@ function setupEvents() {
 
   byId("clear-cart").addEventListener("click", () => clearCart());
 
-  byId("product-from").addEventListener("submit", (e) => {
+  byId("product-form").addEventListener("submit", (e) => {
     e.preventDefault();
     const from = e.currentTarget;
     const payload = {
@@ -270,7 +285,7 @@ function setupEvents() {
       stock: from.stock.value,
     };
     const res = validateProductInput(payload);
-    const errorEl = byId("product-from-error");
+    const errorEl = byId("product-form-error");
     if (!res.ok) {
       errorEl.textContent = res.errors.join(" ");
       return;
@@ -280,20 +295,20 @@ function setupEvents() {
       uid(),
       payload.name,
       res.priceNum,
-      res.StockNum
+      res.stockNum
     );
     catalog.push(product);
     saveCatalog();
     renderCatalog();
     renderCatalog(byId("search").value);
     from.reset();
-    setMenssage("Producto agregado al catálogo.");
+    setMessage("Producto agregado al catálogo.");
   });
 }
 
 function init() {
   loadState();
-  seedCatalofIfEmpty();
+  seedCatalogIfEmpty();
   setupEvents();
   renderCatalog();
   renderCart();
